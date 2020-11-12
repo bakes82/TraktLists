@@ -1,0 +1,233 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>AppleTv</title>
+</head>
+<body>
+<!-- ReSharper disable UnknownCssClass -->
+<div id="ConfigurationPage" data-role="page" class="page type-interior pluginConfigurationPage ConfigurationPage" data-require="emby-input,emby-button,emby-select,emby-checkbox">
+    <div data-role="content">
+        <div class="content-primary">
+
+            <h1>Channel Setup</h1>
+
+            <form id="ConfigurationForm">
+                <div class="inputContainer">
+                    <input is="emby-input" id="txtPin" name="txtPin" type="text" label="Trakt Authentication PIN:" />
+                    <div class="fieldDescription">
+                        <a href="https://trakt.tv/oauth/authorize?response_type=code&client_id=c44548028dcd8f31e9bee55318562e6e5deb8524f5ca3e77e167fd3b1c9ce380&redirect_uri=urn:ietf:wg:oauth:2.0:oob" target="_blank">Get PIN.</a> When the PIN is successfully exchanged for a token, it is deleted from this field. Afterwards, the hidden token is used.
+                    </div>
+                </div>
+                <h2>Custom Trakt Lists</h2>
+                <div id="CustomTraktChannels"></div>
+                
+                <h2>Pre Configured Trak Lists</h2>
+                <div id="PreConfiguredTraktChannels"></div>
+                <div>
+                    <button is="emby-button" type="submit" class="raised button-submit block"><span>${ButtonSave}</span></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ReSharper disable UseOfImplicitGlobalInFunctionScope -->
+    <script type="text/javascript">
+        
+        function GetConfigType(field)
+        {
+            var output = [];
+            var channelName = [];
+            var Uri = [];
+            var Enabled = [];
+            var Id = [];
+            
+            $('[name^="'+field+'"]').each(function(oneTag){
+                var value = $(this).val();
+                var name = $(this).attr('name');
+               if(name.indexOf('ChannelName') !== -1)
+               {
+                   channelName.push(value);
+               }
+                if(name.indexOf('Uri') !== -1)
+                {
+                    Uri.push(value);
+                }
+                if(name.indexOf('Id') !== -1)
+                {
+                    Id.push(value);
+                }
+                if(name.indexOf('Enabled') !== -1)
+                {
+                    Enabled.push(value);
+                }                
+            });
+
+            for (var i = 0, length = channelName.length; i < length; i++) {
+                output.push({ChannelName: channelName[i], Uri: Uri[i], Id: Id[i], Enabled: Enabled[i]})
+            }
+            
+                //console.log(output);
+            return output;
+
+            }
+
+        Array.prototype.remove = function () {
+            var what, a = arguments, L = a.length, ax;
+            while (L && this.length) {
+                what = a[--L];
+                while ((ax = this.indexOf(what)) !== -1) {
+                    this.splice(ax, 1);
+                }
+            }
+            return this;
+        };
+
+        var ConfigurationPage =
+            {
+                pluginUniqueId: "CD48A6A8-D26B-48EB-8857-D06A62875039",
+                loadConfiguration: function (page) {
+                    Dashboard.showLoadingMsg();
+                    ApiClient.getPluginConfiguration(ConfigurationPage.pluginUniqueId).then(function (config) {
+                        if (config.Pin) {
+                            $('#txtPin', page).val(config.Pin);
+                        }
+                        
+                        if (config.ChannelName) {
+                            $('#txtChannelName', page).val(config.ChannelName);
+                        }
+                        
+                        if(config.PreConfiguredTraktChannels === null || config.PreConfiguredTraktChannels.length === 0){
+                            var preConfig = [];
+                            preConfig.push({Uri: "https://trakt.tv/users/mmounirou/lists/imdb-top-250-movies?sort=rank,asc", Enabled: true, ChannelName: "IMDB Top 250 Movies", Id: 1});
+                            preConfig.push({Uri: "https://trakt.tv/users/justin/lists/imdb-top-rated-movies?sort=rank,asc", Enabled: true, ChannelName: "IMDB Top Rated Movies", Id: 2});
+                            config.PreConfiguredTraktChannels = preConfig;
+                        }
+                        
+                        if(config.PreConfiguredTraktChannels)
+                        {
+                            var html = "";
+                            for (var i = 0, length = config.PreConfiguredTraktChannels.length; i < length; i++) {
+                                var checked = "";
+                                if(config.PreConfiguredTraktChannels[i].Enabled)
+                                {
+                                    checked = "checked";
+                                }
+                                html += '<div class="inputContainer">' +
+                                    '<input is="emby-input" id="PreConfiguredTraktChannels[' + i + '][ChannelName]" name="PreConfiguredTraktChannels[' + i + '][ChannelName]" type="text" label="Label For Channel Shown in Emby:" value="' + config.PreConfiguredTraktChannels[i].ChannelName + '" />' +
+                                    '<input id="PreConfiguredTraktChannels[' + i + '][Uri]" name="PreConfiguredTraktChannels[' + i + '][Uri]" type="hidden" value="' + config.PreConfiguredTraktChannels[i].Uri + '" />' +
+                                    '<input id="PreConfiguredTraktChannels[' + i + '][Id]" name="PreConfiguredTraktChannels[' + i + '][Id]" type="hidden" value="' + config.PreConfiguredTraktChannels[i].Id + '" />' +
+                                    '<div class="fieldDescription">' +
+                                    '                        Trakt List: <a href="' + config.PreConfiguredTraktChannels[i].Uri + '" target="_blank">' + config.PreConfiguredTraktChannels[i].Uri + '</a>' +
+                                    '                    </div>' +
+                                    '</div>' +
+                                    '<div class="checkboxContainer checkboxContainer-withDescription">' +
+                                    '                    <label>' +
+                                    '                        <input is="emby-checkbox" type="checkbox" id="PreConfiguredTraktChannels[' + i + '][Enabled]" name="PreConfiguredTraktChannels[' + i + '][Enabled]" '+ checked+' value="' + config.PreConfiguredTraktChannels[i].Enabled + '" />' +
+                                    '                        <span>Enable Channel ' + config.PreConfiguredTraktChannels[i].ChannelName + '</span>' +
+                                    '                    </label>' +
+                                    '                </div>'
+                            }
+
+                            $('#PreConfiguredTraktChannels').html(html);
+                            
+                        }
+
+                        if(config.CustomTraktChannels === null || config.CustomTraktChannels.length === 0){
+                            var customConfig = [];
+                            customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 1", Id: 1});
+                            customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 2", Id: 2});
+                            customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 3", Id: 3});
+                            customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 4", Id: 4});
+                            customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 5", Id: 5});
+                            customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 6", Id: 6});
+                            customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 7", Id: 7});
+                            customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 8", Id: 8});
+                            customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 9", Id: 9});
+                            customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 10", Id: 10});
+                            config.CustomTraktChannels = customConfig;
+                        }
+
+                        if(config.CustomTraktChannels)
+                        {
+                            var html = "";
+                            for (var i = 0, length = config.CustomTraktChannels.length; i < length; i++) {
+                                var checked = "";
+                                if(config.CustomTraktChannels[i].Enabled)
+                                {
+                                    checked = "checked";
+                                }
+                                html += '<div class="inputContainer">' +
+                                    '<input is="emby-input" id="CustomTraktChannels[' + i + '][ChannelName]" name="CustomTraktChannels[' + i + '][ChannelName]" type="text" label="Label For Channel Shown in Emby:" value="' + config.CustomTraktChannels[i].ChannelName + '" />' +
+                                    '<input id="CustomTraktChannels[' + i + '][Uri]" name="CustomTraktChannels[' + i + '][Uri]" type="hidden" value="' + config.CustomTraktChannels[i].Uri + '" />' +
+                                    '<input id="CustomTraktChannels[' + i + '][Id]" name="CustomTraktChannels[' + i + '][Id]" type="hidden" value="' + config.CustomTraktChannels[i].Id + '" />' +
+                                    '<div class="fieldDescription">' +
+                                    '                        Trakt List: <a href="' + config.CustomTraktChannels[i].Uri + '" target="_blank">' + config.CustomTraktChannels[i].Uri + '</a>' +
+                                    '                    </div>' +
+                                    '</div>' +
+                                    '<div class="checkboxContainer checkboxContainer-withDescription">' +
+                                    '                    <label>' +
+                                    '                        <input is="emby-checkbox" type="checkbox" id="CustomTraktChannels[' + i + '][Enabled]" name="CustomTraktChannels[' + i + '][Enabled]" '+ checked+' value="' + config.CustomTraktChannels[i].Enabled + '" />' +
+                                    '                        <span>Enable Channel ' + config.CustomTraktChannels[i].ChannelName + '</span>' +
+                                    '                    </label>' +
+                                    '                </div>'
+                            }
+
+                            $('#CustomTraktChannels').html(html);                            
+                        }
+
+                        $(":checkbox").click(function(){
+                            //alert(" you checked");
+                            alert("Before = "+$(this).val());
+                            if($(this).is(':checked'))
+                            {
+                                $(this).val('true');
+                            }
+                            else
+                            {
+                                $(this).val('false');
+                            }
+
+                            //alert("After = "+$(this).val());
+                        });
+                        
+                        Dashboard.hideLoadingMsg();
+                    });
+                }
+            };
+
+        $('.ConfigurationPage').on('pageinit', function () {
+            Dashboard.showLoadingMsg();
+            var page = this;            
+            
+            $('#ConfigurationForm', page).on('submit', function () {
+                Dashboard.showLoadingMsg();
+
+                ApiClient.getPluginConfiguration(ConfigurationPage.pluginUniqueId).then(function (config) {
+                    config.Pin = $('#txtPin', page).val();
+                    config.ChannelName = $('#txtChannelName', page).val();                    
+                    config.PreConfiguredTraktChannels = GetConfigType("PreConfiguredTraktChannels");
+                    config.CustomTraktChannels = GetConfigType("CustomTraktChannels");
+
+                    ApiClient.updatePluginConfiguration(ConfigurationPage.pluginUniqueId, config).then(function (result) {
+                        Dashboard.processPluginConfigurationUpdateResult(result);
+                        Dashboard.alert('Settings saved.');
+                    });
+                });
+                return false;
+            });
+        });
+
+        $('.ConfigurationPage').on('pageshow', function () {
+            Dashboard.showLoadingMsg();
+            var page = this;
+            ConfigurationPage.loadConfiguration(page);
+        });
+
+        
+    </script>
+    <!-- ReSharper restore UseOfImplicitGlobalInFunctionScope -->
+
+</div>
+<!-- ReSharper restore UnknownCssClass -->
+</body>
+</html>
