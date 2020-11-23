@@ -2,8 +2,8 @@
 {
     public static class TraktUris
     {
-        public const string Id = "c44548028dcd8f31e9bee55318562e6e5deb8524f5ca3e77e167fd3b1c9ce380";
-        public const string Secret = "d453bc07bcf42f72e3915715a5275d99de8381ff007c84d20e89ed1070310c89";
+        public const string Id = "780354638b11da9a2e93e0c4498d6a1a0e8428a6da3cca70c98c19c8f0caeb52";
+        public const string Secret = "113ea33e3283ef7349dfe0cb675aee83fe49be9ee540eb81fb1aec3f676b9f71";
 
         #region POST URI's
 

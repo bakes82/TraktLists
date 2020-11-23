@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>AppleTv</title>
+    <title>Trakt Lists</title>
 </head>
 <body>
 <!-- ReSharper disable UnknownCssClass -->
@@ -21,7 +21,7 @@
                 <h2>Custom Trakt Lists</h2>
                 <div id="CustomTraktChannels"></div>
                 
-                <h2>Pre Configured Trak Lists</h2>
+                <h2>Pre Configured Trakt Lists</h2>
                 <div id="PreConfiguredTraktChannels"></div>
                 <div>
                     <button is="emby-button" type="submit" class="raised button-submit block"><span>${ButtonSave}</span></button>
@@ -82,6 +82,36 @@
             return this;
         };
 
+        var preConfig = [];
+        preConfig.push({Uri: "https://trakt.tv/users/mmounirou/lists/imdb-top-250-movies?sort=rank,asc", Enabled: false, ChannelName: "IMDB Top 250 Movies", Id: 1});
+        preConfig.push({Uri: "https://trakt.tv/users/justin/lists/imdb-top-rated-movies?sort=rank,asc", Enabled: false, ChannelName: "IMDB Top Rated Movies", Id: 2});
+        preConfig.push({Uri: "https://trakt.tv/users/captainnapalm/lists/1001-greatest-movies-of-all-time?sort=rank,asc", Enabled: false, ChannelName: "1001 Greatest Movies of All Time", Id: 3});
+        preConfig.push({Uri: "https://trakt.tv/users/maxwelldeux/lists/tspdt-s-21st-century-s-most-acclaimed-films?sort=rank,asc", Enabled: false, ChannelName: "21st Century's Most Acclaimed Films", Id: 4});
+        preConfig.push({Uri: "https://trakt.tv/users/sp1ti/lists/afi-s-100-years-100-movies-10th-anniversary-edition?sort=rank,asc", Enabled: false, ChannelName: "AFIs 100 Years... 100 Movies (10th Anniversary Edition)", Id: 5});
+        preConfig.push({Uri: "https://trakt.tv/users/maxwelldeux/lists/the-criterion-collection?sort=rank,asc", Enabled: false, ChannelName: "The Criterion Collection", Id: 6});
+        preConfig.push({Uri: "https://trakt.tv/users/themoodymuck/lists/disney?sort=released,asc", Enabled: false, ChannelName: "Disney ", Id: 7});
+        preConfig.push({Uri: "https://trakt.tv/users/maximm/lists/empire-magazines-500-greatest-films-of-all-time", Enabled: false, ChannelName: "Empire Top 500", Id: 8});
+        preConfig.push({Uri: "https://trakt.tv/users/teokir/lists/all-time-1000-8-films-to-see-before-you-die-the-guardian?sort=rank,asc", Enabled: false, ChannelName: "The Guardian 1000 Films to See Before You Die", Id: 9});
+        preConfig.push({Uri: "https://trakt.tv/users/any/lists/james-bond?sort=rank,asc", Enabled: false, ChannelName: "James Bond", Id: 10});
+        preConfig.push({Uri: "https://trakt.tv/users/movistapp/lists/marvel?sort=rank,asc", Enabled: false, ChannelName: "Marvel", Id: 11});
+        /*preConfig.push({Uri: "", Enabled: false, ChannelName: "", Id: 12});
+        preConfig.push({Uri: "", Enabled: false, ChannelName: "", Id: 13});
+        preConfig.push({Uri: "", Enabled: false, ChannelName: "", Id: 14});
+        preConfig.push({Uri: "", Enabled: false, ChannelName: "", Id: 15});
+        preConfig.push({Uri: "", Enabled: false, ChannelName: "", Id: 16});*/
+
+        var customConfig = [];
+        customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 1", Id: 1});
+        customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 2", Id: 2});
+        customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 3", Id: 3});
+        customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 4", Id: 4});
+        customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 5", Id: 5});
+        customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 6", Id: 6});
+        customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 7", Id: 7});
+        customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 8", Id: 8});
+        customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 9", Id: 9});
+        customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 10", Id: 10});
+
         var ConfigurationPage =
             {
                 pluginUniqueId: "CD48A6A8-D26B-48EB-8857-D06A62875039",
@@ -96,11 +126,17 @@
                             $('#txtChannelName', page).val(config.ChannelName);
                         }
                         
-                        if(config.PreConfiguredTraktChannels === null || config.PreConfiguredTraktChannels.length === 0){
-                            var preConfig = [];
-                            preConfig.push({Uri: "https://trakt.tv/users/mmounirou/lists/imdb-top-250-movies?sort=rank,asc", Enabled: true, ChannelName: "IMDB Top 250 Movies", Id: 1});
-                            preConfig.push({Uri: "https://trakt.tv/users/justin/lists/imdb-top-rated-movies?sort=rank,asc", Enabled: true, ChannelName: "IMDB Top Rated Movies", Id: 2});
+                        if(config.PreConfiguredTraktChannels === null || config.PreConfiguredTraktChannels.length === 0){                           
                             config.PreConfiguredTraktChannels = preConfig;
+                        }
+                        
+                        if(preConfig.length !== config.PreConfiguredTraktChannels.length)
+                        {
+                            for (var i = 0, length = preConfig.length; i < length; i++) {
+                                if(config.PreConfiguredTraktChannels.indexOf(i) === -1) {
+                                    config.PreConfiguredTraktChannels.push(preConfig[i]);
+                                }
+                            }
                         }
                         
                         if(config.PreConfiguredTraktChannels)
@@ -132,19 +168,17 @@
                             
                         }
 
-                        if(config.CustomTraktChannels === null || config.CustomTraktChannels.length === 0){
-                            var customConfig = [];
-                            customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 1", Id: 1});
-                            customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 2", Id: 2});
-                            customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 3", Id: 3});
-                            customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 4", Id: 4});
-                            customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 5", Id: 5});
-                            customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 6", Id: 6});
-                            customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 7", Id: 7});
-                            customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 8", Id: 8});
-                            customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 9", Id: 9});
-                            customConfig.push({Uri: "", Enabled: false, ChannelName: "Channel 10", Id: 10});
+                        if(config.CustomTraktChannels === null || config.CustomTraktChannels.length === 0){                            
                             config.CustomTraktChannels = customConfig;
+                        }
+
+                        if(customConfig.length !== config.CustomTraktChannels.length)
+                        {
+                            for (var i = 0, length = preConfig.length; i < length; i++) {
+                                if(config.CustomTraktChannels.indexOf(i) === -1) {
+                                    config.CustomTraktChannels.push(customConfig[i]);
+                                }
+                            }
                         }
 
                         if(config.CustomTraktChannels)
@@ -177,7 +211,7 @@
 
                         $(":checkbox").click(function(){
                             //alert(" you checked");
-                            alert("Before = "+$(this).val());
+                            //alert("Before = "+$(this).val());
                             if($(this).is(':checked'))
                             {
                                 $(this).val('true');

@@ -24,7 +24,7 @@ namespace TraktLists.Channels
             ILibraryManager libraryManager, TraktChannel channelToConfigure, ILogger logger, TraktApi traktApi,
             CancellationToken cancellationToken)
         {
-            await Plugin.Instance.SchedTaskResourcePool.WaitAsync(cancellationToken).ConfigureAwait(false);
+            //await Plugin.Instance.SchedTaskResourcePool.WaitAsync(cancellationToken).ConfigureAwait(false);
 
             try
             {
@@ -139,13 +139,7 @@ namespace TraktLists.Channels
                 
                 logger.Info(channelToConfigure.ChannelName);
                 logger.Info("Found " + channelLibraryItem.Length.ToString());
-                
 
-                // ReSharper disable once ComplexConditionExpression
-                var ids = libraryManager.GetInternalItemIds(new InternalItemsQuery
-                {
-                    IncludeItemTypes = new[] {"Movie"}
-                });
 
                 var libraryItems = libraryManager.GetInternalItemIds(new InternalItemsQuery
                 {
@@ -177,15 +171,21 @@ namespace TraktLists.Channels
                 logger.Info($"Count of items in emby {mediaItems.Count}");
 
                 var foundMovies = new List<string>();
-                var notFoundMovies = new List<string>();
+                //var notFoundMovies = new List<string>();
                 
                 logger.Info("Internal Ids: " + string.Join(", ", libraryItems.Select(x => x.ToString()).ToArray()));
 
-                foreach (var movie in mediaItems.OfType<Movie>())
+                foreach (var movie in mediaItems.OfType<Movie>().OrderBy(x => x.Name))
                 {
+                    if (channels.Select(x => x.ParentId).Contains(movie.Parent.ParentId))
+                    {
+                        continue;
+                    }
+                    
                     //Logger.Info($"Movie {movie.Name}");
 
                     //logger.Info(movie.InternalId.ToString());
+                    
                     if (libraryItems.Contains(movie.InternalId)) continue;
 
                     var foundMovie = Match.FindMatch(movie, listData);
@@ -224,11 +224,6 @@ namespace TraktLists.Channels
                             // }
                         }
                     }
-                    else
-                    {
-                        notFoundMovies.Add(movie.Name);
-                        //logger.Debug($"Movie {movie.Name} not found");
-                    }
                 }
 
                 logger.Info($"Count of items in List to add {newItems.Count}");
@@ -238,8 +233,7 @@ namespace TraktLists.Channels
                 logger.Info($"Count of distinct items in List to add {distinctItems.Count}");
 
                 logger.Info("Found Movies: " + string.Join(", ", foundMovies.Select(x => x.ToString()).ToArray()));
-                logger.Info(
-                    "Not Found Movies: " + string.Join(", ", notFoundMovies.Select(x => x.ToString()).ToArray()));
+                //logger.Info("Not Found Movies: " + string.Join(", ", notFoundMovies.Select(x => x.ToString()).ToArray()));
                 
                 logger.Info(
                     "Not Found Movies: " + string.Join(", ", distinctItems.Select(x => x.Id.ToString()).ToArray()));
@@ -252,7 +246,7 @@ namespace TraktLists.Channels
             }
             finally
             {
-                Plugin.Instance.SchedTaskResourcePool.Release();
+                //Plugin.Instance.SchedTaskResourcePool.Release();
             }
         }
     }

@@ -19,7 +19,7 @@ namespace TraktLists
         }
         
         public SemaphoreSlim TraktResourcePool = new SemaphoreSlim(1, 1);
-        public SemaphoreSlim SchedTaskResourcePool = new SemaphoreSlim(1, 1);
+        //public SemaphoreSlim SchedTaskResourcePool = new SemaphoreSlim(1, 1);
         public static Plugin Instance { get; private set; }
 
         public override Guid Id => PluginConfiguration.Guid;
