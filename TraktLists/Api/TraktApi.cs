@@ -47,10 +47,11 @@ namespace TraktLists.Api
             {
                 _logger.Error("Tried to reauthenticate with Trakt, but neither PIN nor refreshToken was available");
             }
-
+            _logger.Info($"{data.code} - {data.grant_type}");
             TraktUserToken userToken;
             using (var response = await PostToTrakt(TraktUris.Token, data, null, cancellationToken).ConfigureAwait(false))
             {
+                _logger.Info($"{response}");
                 userToken = await _jsonSerializer.DeserializeFromStreamAsync<TraktUserToken>(response).ConfigureAwait(false);
             }
 
@@ -98,15 +99,11 @@ namespace TraktLists.Api
             return PostToTrakt(url, data, cancellationToken, traktUser);
         }
 
-        /// <summary>
-        ///     Posts data to url, authenticating with <see cref="TraktUser"/>.
-        /// </summary>
-        /// <param name="traktUser">If null, authentication headers not added.</param>
         private async Task<Stream> PostToTrakt(string url, object data, CancellationToken cancellationToken,
             TraktUser traktUser)
         {
             var requestContent = data == null ? string.Empty : _jsonSerializer.SerializeToString(data);
-            if (traktUser != null && traktUser.ExtraLogging) _logger.Debug("POST " + requestContent);
+            _logger.Info("POST " + requestContent);
             var options = GetHttpRequestOptions();
             options.Url = url;
             options.CancellationToken = cancellationToken;
