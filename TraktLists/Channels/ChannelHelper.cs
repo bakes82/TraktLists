@@ -175,7 +175,7 @@ namespace TraktLists.Channels
                 
                 logger.Info("Internal Ids: " + string.Join(", ", libraryItems.Select(x => x.ToString()).ToArray()));
 
-                foreach (var movie in mediaItems.OfType<Movie>().OrderBy(x => x.Name))
+                foreach (var movie in mediaItems.OfType<Movie>().OrderBy(x => x.DateCreated))
                 {
                     if (channels.Select(x => x.ParentId).Contains(movie.Parent.ParentId))
                     {
